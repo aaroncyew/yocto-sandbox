@@ -1,5 +1,4 @@
 {
-    "DEPLOY_DIR" : "/srv/data/builds/",
     "lava-defaults" : {
         "username" : "<LAVA user account>",
         "token"    : "<LAVA user token>",
@@ -7,7 +6,7 @@
     },
     "lava-devices" : {
         "minnowboard" : {
-            "job_name" : {},
+            "job_name" : "Minnowboard Turbot with Yocto core-image-sato-sdk (intel-corei7-64)",
             "priority" : "medium",
             "visibility" : "public",
                 "timeout" : {
@@ -72,6 +71,7 @@
     "overrides" : {
         "nightly-x86-64-bsp" : {
             "MACHINE" : "intel-corei7-64",
+            "DEPLOY_DIR" : "/srv/data/builds/",
 	        "DEPLOY_DIR_IMAGE" : "${DEPLOY_DIR}/images/${MACHINE}/",
             "NEEDREPOS" : ["poky", "meta-intel", "meta-openembedded", "meta-security"],
 	        "step1" : {
