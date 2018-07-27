@@ -1,0 +1,122 @@
+{
+    "DEPLOY_DIR" : "/srv/data/builds/",
+    "lava-defaults" : {
+        "username" : "<LAVA user account>",
+        "token"    : "<LAVA user token>",
+        "server"   : "<LAVA server hostname>:<LAVA server TCP/IP port>"
+    },
+    "lava-devices" : {
+        "minnowboard" : {
+            "job_name" : {},
+            "priority" : "medium",
+            "visibility" : "public",
+                "timeout" : {
+                "job"        : { "minutes" : 180 },
+                "action"     : { "minutes" : 60 },
+                "connection" : { "minutes" : 60 }
+            },
+            "deploy" : {
+              "timeout" : 60,
+              "to" : "tftp",
+              "kernel" : {
+                "url"  : "${DEPLOY_DIR_IMAGE}bzImage",
+                "type" : "BzImage"
+              },
+              "modules" : {
+                "url" : "${DEPLOY_DIR_IMAGE}modules-intel-corei7-64.tgz",
+                "compression" : "gz"
+              },
+              "nfsrootfs" : {
+                "url" : "${DEPLOY_DIR_IMAGE}core-image-sato-sdk-intel-corei7-64.tar.gz",
+                "compression" : "gz"
+              },
+              "os": "oe"
+            },
+            "boot" : {
+                "timeout" : 60,
+                "method"  : "grub",
+                "commands" : "nfs",
+                "auto_login" : {
+                    "login_prompt" : "'intel-corei7-64 login:'",
+                    "username" : "root"
+                },
+                "prompts" : "'root@intel-corei7-64:~#'"
+            },
+            "test" : {
+                "timeout" : 3600,
+                "name" : "yocto-bsp-test",
+                "definitions" : {
+                    "repository" : "https://git://git.yoctoproject.org/git/yocto-autobuilder-helper.git",
+                    "from" : "git",
+                    "path" : "lava/device/yaml/auto-bsp-test.yaml",
+                    "name" : "yocto-bsp-test"
+                }
+            }
+        },
+        "beaglebone-black" : {
+            "job_name" : "Beaglebine with Yocto core-image-sato-sdk (ARM Cortex)",
+            "priority" : "medium",
+            "visibility" : "public",
+            "timeout" : {
+                "job"        : { "minutes" : 180 },
+                "action"     : { "minutes" : 60 },
+                "connection" : { "minutes" : 60 }
+            }
+        },
+        "beaglebone-mx" : {},
+        "x86" : {},
+        "qemu" : {},
+        "dragonboard-410c" : {},
+        "mustang" : {}
+    },
+    "overrides" : {
+        "nightly-x86-64-bsp" : {
+            "MACHINE" : "intel-corei7-64",
+	        "DEPLOY_DIR_IMAGE" : "${DEPLOY_DIR}/images/${MACHINE}/",
+            "NEEDREPOS" : ["poky", "meta-intel", "meta-openembedded", "meta-security"],
+	        "step1" : {
+                "SDKMACHINE": "x86_64",
+                "extravars": [
+                    "DISTRO_FEATURES_append = \" systemd\"",
+                    "IMAGE_INSTALL_append = \" udev util-linux systemd\"",
+                    "CORE_IMAGE_EXTRA_INSTALL_append += \"python3 python3-pip python-pip git socat apt dpkg openssh\"",
+                    "IMAGE_FSTYPES = \"tar.gz\"",
+                    "TEST_SUITES_append = \" manualbsp\"",
+                    "TEST_TARGET = \"simpleremote\"",
+                    "TEST_SERVER_IP = ''",
+                    "TEST_TARGET_IP = ''"
+                ],
+                "ADDLAYER": [
+                    "../meta-intel",
+                    "../meta-openembedded/meta-oe",
+                    "../meta-openembedded/meta-python",
+                    "../meta-openembedded/meta-perl",
+                    "../meta-openembedded/meta-networking",
+                    "../meta-security"
+                ],
+                "BBTARGETS": "core-image-sato-sdk"
+            },
+            "steps2" : {
+                "WRITECONFIG" : false
+            }
+        },
+        "nightly-x86-bsp"    : {},
+        "nightly-arm-bsp"    : {},
+        "nightly-arm64-bsp"  : {},
+        "nightly-mips-bsp"   : {},
+        "nightly-mips64-bsp" : {},
+        "nightly-ppc-bsp"    : {}
+    },
+    "repo-defaults" : {
+        "meta-intel" : {
+            "url" : "git://git.yoctoproject.org/meta-intel",
+            "branch" : "master",
+            "revision" : "HEAD"
+        },
+        "meta-openembedded" : {
+            "url" : "git://git.openembedded.org/meta-openembedded",
+            "branch" : "master",
+            "revision" : "HEAD"
+        }
+    }
+}
